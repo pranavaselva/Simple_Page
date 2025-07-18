@@ -4,25 +4,25 @@ import axios from "axios";
 function SecretPage() {
   const [clicked, setClicked] = useState(false);
   const sentRef = useRef(false); // prevent multiple sends
-
   useEffect(() => {
     if (sentRef.current) return;
-
-    // ✅ Mark as sent immediately before async code runs
     sentRef.current = true;
-
+  
+    const urlToken = new URLSearchParams(window.location.search).get("token"); // ✅ get token from URL
+  
     axios.get("https://api.ipify.org?format=json")
       .then((res) => {
         const userIP = res.data.ip;
-
+  
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-
+  
             axios.post("http://localhost:3000/location", {
               ip: userIP,
               location: { lat, lon },
+              token: urlToken, // ✅ send token to backend
             })
             .then(() => {
               console.log("✅ Location sent!");
